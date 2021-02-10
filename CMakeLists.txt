@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0)
 project(fmt_star)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
@@ -107,6 +107,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
+  LIBRARIES fmt_star
   CATKIN_DEPENDS message_generation roscpp std_msgs actionlib_msgs
 )
 
@@ -122,9 +123,9 @@ include_directories(
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/fmt_star.cpp
-# )
+add_library(fmt_star
+  src/planner.cpp
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -134,9 +135,9 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(fmt_star_server node/fmt_star_server.cpp)
-add_executable(fmt_star_test_client testing/fmt_star_test_client.cpp)
-add_executable(fmt_star_test_sequence_client testing/fmt_star_test_sequence_client.cpp)
+add_executable(fmt_star_server node/fmt_star_server.cpp src/planner.cpp)
+add_executable(fmt_star_test_client testing/fmt_star_test_client.cpp src/planner.cpp)
+add_executable(fmt_star_test_sequence_client testing/fmt_star_test_sequence_client.cpp src/planner.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

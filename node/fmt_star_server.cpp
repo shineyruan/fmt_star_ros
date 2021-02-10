@@ -1,17 +1,14 @@
 #include <actionlib/server/simple_action_server.h>
+#include <fmt_star/planAction.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <ros/ros.h>
 #include <visualization_msgs/MarkerArray.h>
-#include <fmt_star/planAction.h>
 
 #include "fmt_star/planner.h"
 
-class PlannerAction
-{
+class PlannerAction {
 public:
-    PlannerAction():
-            as_(nh_, "fmt_star_server", boost::bind(&PlannerAction::execute_callback, this, _1), false)
-    {
+    PlannerAction() : as_(nh_, "fmt_star_server", boost::bind(&PlannerAction::execute_callback, this, _1), false) {
         bool visualization, online, minimal_sampling;
         int n_samples, n_collision_checks, obstacle_inflation_radius;
         double near_radius, goal_tolerance, hg_ratio, sampling_tolerance;
@@ -68,50 +65,41 @@ private:
     std::unique_ptr<fmt_star::Planner> planner_;
     nav_msgs::OccupancyGridConstPtr input_map_;
 
-    void execute_callback(const fmt_star::planGoalConstPtr &goal)
-    {
+    void execute_callback(const fmt_star::planGoalConstPtr &goal) {
         ros::Rate r(1);
         bool success = true;
 
-        ROS_INFO("Start and Goal Recieved by the Planner");
-        if(goal->update_samples)
-        {
-            if(goal->update_map)
-            {
+        ROS_INFO("Start and Goal Received by the Planner");
+        if (goal->update_samples) {
+            if (goal->update_map) {
                 input_map_ = ros::topic::waitForMessage<nav_msgs::OccupancyGrid>("map", ros::Duration(1));
-                if(!input_map_)
-                {
-                    ROS_ERROR("Updated Input Map not Recieved");
+                if (!input_map_) {
+                    ROS_ERROR("Updated Input Map not Received");
                     success = false;
                 }
             }
-            if(success)
-            {
+            if (success) {
                 planner_->update_occupancy_grid(input_map_,
-                        {goal->start_position.pose.position.x,goal->start_position.pose.position.y},
-                        {goal->end_position.pose.position.x,goal->end_position.pose.position.y});
+                                                {goal->start_position.pose.position.x, goal->start_position.pose.position.y},
+                                                {goal->end_position.pose.position.x, goal->end_position.pose.position.y});
             }
         }
 
-        ROS_DEBUG("Start Position: (%f, %f)", goal->start_position.pose.position.x,goal->start_position.pose.position.y);
-        ROS_DEBUG("Goal Position: (%f, %f)", goal->end_position.pose.position.x,goal->end_position.pose.position.y);
+        ROS_DEBUG("Start Position: (%f, %f)", goal->start_position.pose.position.x, goal->start_position.pose.position.y);
+        ROS_DEBUG("Goal Position: (%f, %f)", goal->end_position.pose.position.x, goal->end_position.pose.position.y);
 
-        const auto plan = planner_->get_plan({goal->start_position.pose.position.x,goal->start_position.pose.position.y},
-                                             {goal->end_position.pose.position.x,goal->end_position.pose.position.y});
+        const auto plan = planner_->get_plan({goal->start_position.pose.position.x, goal->start_position.pose.position.y},
+                                             {goal->end_position.pose.position.x, goal->end_position.pose.position.y});
 
-        if(!success || plan.empty())
-        {
+        if (!success || plan.empty()) {
             ROS_ERROR("Not able to find a path.");
             as_.setAborted(result_);
-        }
-        else
-        {
+        } else {
             nav_msgs::Path path;
             path.header.frame_id = "/map";
             path.header.stamp = ros::Time::now();
 
-            for(const auto& node: plan)
-            {
+            for (const auto &node : plan) {
                 geometry_msgs::PoseStamped path_node;
                 path_node.pose.position.x = node[0];
                 path_node.pose.position.y = node[1];
@@ -124,11 +112,9 @@ private:
             as_.setSucceeded(result_);
         }
     }
-
 };
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     ros::init(argc, argv, "fmt_star_server");
     PlannerAction planner;
     ros::spin();

@@ -2,17 +2,15 @@
 #define SRC_PLANNER_H
 
 #include <nav_msgs/OccupancyGrid.h>
-#include <random>
 #include <ros/ros.h>
 
-namespace fmt_star
-{
+#include <random>
 
-struct Node
-{
+namespace fmt_star {
+
+struct Node {
     Node() = default;
-    Node(double x, double y) : x(x), y(y), g_cost(0.0), h_cost(0.0), parent_node(nullptr), near_nodes({})
-    {}
+    Node(double x, double y) : x(x), y(y), g_cost(0.0), h_cost(0.0), parent_node(nullptr), near_nodes({}) {}
     double x;
     double y;
     double g_cost;
@@ -20,18 +18,15 @@ struct Node
     Node* parent_node;
     std::vector<Node*> near_nodes;
 
-    double traversal_cost(const Node& other_node) const
-    {
-        return sqrt(pow(x-other_node.x,2)+pow(y-other_node.y,2));
+    double traversal_cost(const Node& other_node) const {
+        return sqrt(pow(x - other_node.x, 2) + pow(y - other_node.y, 2));
     }
-    double traversal_cost(Node* other_node) const
-    {
-        return sqrt(pow(x-other_node->x,2)+pow(y-other_node->y,2));
+    double traversal_cost(Node* other_node) const {
+        return sqrt(pow(x - other_node->x, 2) + pow(y - other_node->y, 2));
     }
 };
 
-class Planner
-{
+class Planner {
 public:
     /// Creates a Planner instance with the input occupancy grid as the map
     /// @param occupancy_grid - current occupancy grid (map)
@@ -40,20 +35,20 @@ public:
     /// @param obstacle_inflation_radius - safety boundary around obstacles
     /// @param sampling_rectangle - Rectangle defining the boundary for sampling nodes
     explicit Planner(nav_msgs::OccupancyGridConstPtr occupancy_grid,
-                    size_t no_of_nodes,
-                    double ball_radius,
-                    size_t n_collision_checks,
-                    int obstacle_inflation_radius,
-                    double goal_tolerance,
-                    double hg_ratio,
-                    bool online,
-                    const std::array<double, 4>& sampling_rectangle,
-                    bool minimal_sampling,
-                    double sampling_tolerance,
-                    bool visualization,
-                    ros::Publisher* samples_pub,
-                    ros::Publisher* tree_visualizer,
-                    ros::Publisher* path_visualizer);
+                     size_t no_of_nodes,
+                     double ball_radius,
+                     size_t n_collision_checks,
+                     int obstacle_inflation_radius,
+                     double goal_tolerance,
+                     double hg_ratio,
+                     bool online,
+                     const std::array<double, 4>& sampling_rectangle,
+                     bool minimal_sampling,
+                     double sampling_tolerance,
+                     bool visualization,
+                     ros::Publisher* samples_pub,
+                     ros::Publisher* tree_visualizer,
+                     ros::Publisher* path_visualizer);
 
     /// Updates the occupancy grid with the latest one
     /// @param occupancy_grid
@@ -65,8 +60,7 @@ public:
     /// @param start - (x, y) position of start in map frame
     /// @param goal - (x, y) position of goal in map frame
     /// @return vector of (x, y) positions along the path from start to goal in map frame
-    std::vector<std::array<double, 2>> get_plan(
-            const std::array<double, 2>& start, const std::array<double, 2>&goal);
+    std::vector<std::array<double, 2>> get_plan(const std::array<double, 2>& start, const std::array<double, 2>& goal);
 
 private:
     ros::Publisher* samples_pub_;
@@ -127,7 +121,7 @@ private:
     /// Generates path from goal node to start node
     /// \param goal_node
     /// \return vector of (x,y) denoting path
-    std::vector<std::array<double,2>> generate_path(Node* goal_node);
+    std::vector<std::array<double, 2>> generate_path(Node* goal_node);
 
     /// Check if there was a collision between two nodes
     /// @param node1
@@ -144,7 +138,7 @@ private:
 
     /// Visualize Input Vector of 2 element array
     /// @param input
-    void visualize_path(const std::vector<std::array<double,2>>& input);
+    void visualize_path(const std::vector<std::array<double, 2>>& input);
 
     /// Visualize Tree
     void visualize_tree();
@@ -175,8 +169,6 @@ std::vector<std::array<double, 2>> translate_sequence_to_ros_coords(const std::v
                                                                     const double ros_map_origin_x,
                                                                     const double ros_map_origin_y);
 
-} // namespace fmt_star
+}  // namespace fmt_star
 
-#endif //SRC_PLANNER_H
-
-#include "fmt_star/planner_impl.h"
+#endif  //SRC_PLANNER_H
