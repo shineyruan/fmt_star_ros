@@ -365,7 +365,7 @@ size_t Planner::row_major_index(double x, double y) {
 /// @param input
 void Planner::visualize_path(const std::vector<std::array<double, 2>>& input) {
     visualization_msgs::Marker line;
-    line.header.frame_id = "/map";
+    line.header.frame_id = "map";
     line.header.stamp = ros::Time::now();
     line.ns = "path";
     line.action = visualization_msgs::Marker::ADD;
@@ -396,7 +396,7 @@ void Planner::visualize_tree() {
     for (const auto& sampled_node : sampled_nodes_) {
         if (sampled_node.parent_node) {
             visualization_msgs::Marker line;
-            line.header.frame_id = "/map";
+            line.header.frame_id = "map";
             line.header.stamp = ros::Time::now();
             line.ns = "tree";
             line.action = visualization_msgs::Marker::ADD;
@@ -428,7 +428,7 @@ void Planner::visualize_samples() {
     int i = 1;
     for (const auto& sampled_node : sampled_nodes_) {
         visualization_msgs::Marker point;
-        point.header.frame_id = "/map";
+        point.header.frame_id = "map";
         point.header.stamp = ros::Time::now();
         point.ns = "samples";
         point.action = visualization_msgs::Marker::ADD;
